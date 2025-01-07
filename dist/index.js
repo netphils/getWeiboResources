@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         微博一键下载(9宫格&&视频)
 // @namespace    https://github.com/wah0713/getWeiboResources
-// @version      2.3.9
+// @version      2.3.10
 // @description  一个兴趣使然的脚本，微博一键下载脚本。傻瓜式🐵(简单🍎、易用🧩、可靠💪)
 // @supportURL   https://github.com/wah0713/getWeiboResources/issues
 // @updateURL    https://greasyfork.org/scripts/454816/code/download.user.js
@@ -53,6 +53,7 @@
     } else if ($frameContent.length && $mMain.length === 0) {
         // 默认页面
         $main = $frameContent
+        // .Frame_wrap_16as0 微博个人主页里面的相册
         $cardList = $('.Main_full_1dfQX,.Frame_wrap_16as0')
         cardHeadStr = '.head-info_info_2AspQ'
         cardHeadAStr = '.head-info_time_6sFQg'
@@ -126,6 +127,10 @@
         isImageHD: {
             name: '是否下载最高清的【图片】(会明显增加下载耗时)',
             value: GM_getValue('isImageHD', false)
+        },
+        isVideoCover: {
+            name: '是否下载【视频封面】',
+            value: GM_getValue('isVideoCover', true)
         },
         isPack: {
             name: '是否打包下载(压缩包)',
@@ -263,9 +268,9 @@
 
         $('#wah0713 .container .showMessage').html(`
             <p><span>进行中的下载任务数：</span><span class="red">${notice.completedQuantity}</span></p>
-            ${tempList.reverse().map(item=>{
-                return `<p><a href="${item.href}" style="background-image: linear-gradient(to right,var(--w-main) ${item.percentage}%,#91c6ca 0);" target="_blank" title="打开微博详情">${item.title}</a><span>:</span><span data-href=${item.href} class="red downloadBtn" title="点击再次下载">${item.message}</span></p>`
-            }).join('')}
+            ${tempList.reverse().map(item => {
+            return `<p><a href="${item.href}" style="background-image: linear-gradient(to right,var(--w-main) ${item.percentage}%,#91c6ca 0);" target="_blank" title="打开微博详情">${item.title}</a><span>:</span><span data-href=${item.href} class="red downloadBtn" title="点击再次下载">${item.message}</span></p>`
+        }).join('')}
         `)
 
         clearTimeout(timer)
@@ -323,13 +328,15 @@
                 if (mblog_vip_type === 1 || !config.isImageHD.value || getSuffixName(mw2000Url) === 'gif') {
                     url = mw2000Url
                 }
-
-                urlData[`${afterName}.${getSuffixName(mw2000Url)}`] = url
-
                 // live视频
                 if (pic_infos[ele].type === 'livephoto') {
                     const url = get(pic_infos[ele], 'video', '')
                     urlData[`${afterName}.${getSuffixName(url)}`] = url
+                    if (config.isVideoCover.value) {
+                        urlData[`${afterName}.${getSuffixName(mw2000Url)}`] = url
+                    }
+                } else {
+                    urlData[`${afterName}.${getSuffixName(mw2000Url)}`] = url
                 }
             })
         }
@@ -344,28 +351,37 @@
                 let mediaUrl = null
                 let videoHDUrl = null
                 if (ele.type === "video") {
-                    objectId = get(ele, 'data.object_id', '')
+                    const objectId = get(ele, 'data.object_id', '')
                     if (config.isVideoHD.value && objectId) {
                         videoHDUrl = await getVideoHD(objectId)
                     }
 
-                    imgUrl = get(ele, 'data.pic_info.pic_big.url', '')
+                    if (config.isVideoCover.value) {
+                        imgUrl = get(ele, 'data.pic_info.pic_big.url', '')
+                    }
                     mediaUrl = videoHDUrl || get(ele, 'data.media_info.stream_url_hd', get(ele, 'data.media_info.stream_url', ''))
                 } else {
-                    imgUrl = get(ele, 'data.mw2000.url', '')
                     // live视频
                     if (get(ele, 'data.type', '') === 'livephoto') {
                         const url = get(ele, 'data.video', '')
                         urlData[`${afterName}.${getSuffixName(url)}`] = url
+
+                        if (config.isVideoCover.value) {
+                            imgUrl = get(ele, 'data.mw2000.url', '')
+                        }
+                    } else {
+                        imgUrl = get(ele, 'data.mw2000.url', '')
                     }
                 }
 
-                if (!config.isImageHD.value || getSuffixName(imgUrl) === 'gif') {
+                if (!imgUrl) {
+                    // 跳过
+                } else if (!config.isImageHD.value || getSuffixName(imgUrl) === 'gif') {
                     // 普通图片
                     urlData[`${afterName}.${getSuffixName(imgUrl)}`] = imgUrl
                 } else {
                     // 高清图片
-                    urlData[`${afterName}.${getSuffixName(imgUrl)}`] = `https://weibo.com/ajax/common/download?pid=${imgUrl.match(/([\w]+)(?=\.\w+$)/)&& RegExp.$1}`
+                    urlData[`${afterName}.${getSuffixName(imgUrl)}`] = `https://weibo.com/ajax/common/download?pid=${imgUrl.match(/([\w]+)(?=\.\w+$)/) && RegExp.$1}`
                 }
 
                 if (mediaUrl) {
@@ -581,7 +597,7 @@
                             // 直播资源
                             response.isLive = isLive
                         }
-                    } catch (error) {}
+                    } catch (error) { }
                     resolve(response)
                 },
                 onerror: (res) => {
@@ -784,7 +800,7 @@
                 const percentage = completedQuantity / total * 100
 
                 data[href].percentage = percentage
-                data[href].message = `中${formatNumber(completedQuantity / 1024/ 1024)}/${formatNumber(total / 1024/ 1024)}M(${formatNumber(percentage)}%)`
+                data[href].message = `中${formatNumber(completedQuantity / 1024 / 1024)}/${formatNumber(total / 1024 / 1024)}M(${formatNumber(percentage)}%)`
             }
         })
         if (!get(mediaRes, '_blob', null)) {
@@ -1060,15 +1076,15 @@
             <div class="editName">
                 <span>可选下载名(【点击】或【拖拽到下方】)</span>
                 <ul class="unactive">
-                    ${[...Object.keys(nameAll)].filter(item=>!nameArr.includes(item)).map(item=>{
-                        return `<li data-id="${item}" draggable="true">${nameAll[item]}</li>`
-                    }).join('')}
+                    ${[...Object.keys(nameAll)].filter(item => !nameArr.includes(item)).map(item => {
+        return `<li data-id="${item}" draggable="true">${nameAll[item]}</li>`
+    }).join('')}
                 </ul>
                 <span>当前下载名(【用户名】为必选)</span>
                 <ul class="active">
-                    ${nameArr.map(item=>{
-                        return `<li data-id="${item}" draggable="true">${nameAll[item]}</li>`
-                    }).join('')}
+                    ${nameArr.map(item => {
+        return `<li data-id="${item}" draggable="true">${nameAll[item]}</li>`
+    }).join('')}
                 </ul>
             </div>
             <div class="input-box">需要显示的消息条数：<input type="number" max="${max}" min="${min}" value="${messagesNumber}"
@@ -1139,8 +1155,8 @@
 
     $cardList.on('click', `${cardHeadStr}:not(.Feed_retweetHeadInfo_Tl4Ld)`, async function (event) {
         if (event.target.className !== event.currentTarget.className || ![...Object.values(message).filter(item => item !== message.getReady), undefined].includes(
-                $(this).attr('show-text')
-            )) return false
+            $(this).attr('show-text')
+        )) return false
 
         // 关闭第一次使用提示
         if (isFirst) {
@@ -1256,7 +1272,7 @@
             if (id) {
                 GM_unregisterMenuCommand(id)
             }
-            config[item].id = GM_registerMenuCommand(`${value?'✔️':'❌'}${name}`, () => {
+            config[item].id = GM_registerMenuCommand(`${value ? '✔️' : '❌'}${name}`, () => {
                 GM_setValue(item, !value)
                 config[item].value = !value
                 updateMenuCommand()
@@ -1265,8 +1281,7 @@
     }
     updateMenuCommand()
 
-    GM_addStyle(`
-body{--red:#ff3852}.head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after,div.card-feed div.from::after{content:"下载" attr(show-text);color:var(--w-brand);cursor:pointer;float:right}.woo-modal-main .wbpro-layer .head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after{content:''}.Main_full_1dfQX.isFirst .head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after,.main-full.isFirst div.card-feed div.from::after{animation:wobble infinite 1s alternate}@keyframes wobble{from{-webkit-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}15%{-webkit-transform:translate3d(-25%,0,0) rotate3d(0,0,1,-5deg);transform:translate3d(-25%,0,0) rotate3d(0,0,1,-5deg)}30%{-webkit-transform:translate3d(20%,0,0) rotate3d(0,0,1,3deg);transform:translate3d(20%,0,0) rotate3d(0,0,1,3deg)}45%{-webkit-transform:translate3d(-15%,0,0) rotate3d(0,0,1,-3deg);transform:translate3d(-15%,0,0) rotate3d(0,0,1,-3deg)}60%{-webkit-transform:translate3d(10%,0,0) rotate3d(0,0,1,2deg);transform:translate3d(10%,0,0) rotate3d(0,0,1,2deg)}75%{-webkit-transform:translate3d(-5%,0,0) rotate3d(0,0,1,-1deg);transform:translate3d(-5%,0,0) rotate3d(0,0,1,-1deg)}to{-webkit-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}}.Frame_content_3XrxZ #wah0713,.m-main #wah0713{font-size:12px;font-weight:700}.Frame_content_3XrxZ #wah0713.out,.m-main #wah0713.out{opacity:0}.Frame_content_3XrxZ #wah0713.out:hover,.m-main #wah0713.out:hover{opacity:1}.Frame_content_3XrxZ #wah0713 .container,.m-main #wah0713 .container{background-color:var(--frame-background);position:fixed;left:0;z-index:1}.Frame_content_3XrxZ #wah0713:hover .editName,.Frame_content_3XrxZ #wah0713:hover .input-box,.m-main #wah0713:hover .editName,.m-main #wah0713:hover .input-box{display:block}.Frame_content_3XrxZ #wah0713 input,.m-main #wah0713 input{width:3em;color:var(--w-brand);border-width:1px;outline:0;background-color:transparent}.Frame_content_3XrxZ #wah0713 .input-box,.m-main #wah0713 .input-box{display:none}.Frame_content_3XrxZ #wah0713 .showMessage>p,.m-main #wah0713 .showMessage>p{line-height:16px;margin:4px}.Frame_content_3XrxZ #wah0713 .showMessage>p span,.m-main #wah0713 .showMessage>p span{color:var(--w-main);vertical-align:top}.Frame_content_3XrxZ #wah0713 .showMessage>p span.red,.m-main #wah0713 .showMessage>p span.red{color:var(--w-brand)}.Frame_content_3XrxZ #wah0713 .showMessage>p span.red.downloadBtn,.m-main #wah0713 .showMessage>p span.red.downloadBtn{cursor:pointer}.Frame_content_3XrxZ #wah0713 .showMessage>p a,.m-main #wah0713 .showMessage>p a{color:transparent;overflow:hidden;text-overflow:ellipsis;max-width:300px;display:inline-block;white-space:nowrap;-webkit-background-clip:text}.Frame_content_3XrxZ #wah0713 .showMessage>p a:hover,.m-main #wah0713 .showMessage>p a:hover{text-decoration:none}.Frame_content_3XrxZ #wah0713 .editName,.m-main #wah0713 .editName{display:none;border:1px solid #ccc;padding:2px;border-radius:6px;user-select:none}.Frame_content_3XrxZ #wah0713 .editName ul,.m-main #wah0713 .editName ul{list-style:none;display:flex;height:20px;margin:0;padding:0 10px 0 0;background-color:#fafafa}.Frame_content_3XrxZ #wah0713 .editName li,.m-main #wah0713 .editName li{height:20px;line-height:20px;background:var(--red);color:#fff;padding-inline:3px;margin-left:2px;font-size:12px;cursor:grab;border-radius:5px}.Frame_content_3XrxZ #wah0713 .unactive li,.m-main #wah0713 .unactive li{background:var(--w-brand)}.Frame_content_3XrxZ #wah0713 .outline,.m-main #wah0713 .outline{outline:2px solid #119da6}
+    GM_addStyle(`body{--red:#ff3852}.head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after,div.card-feed div.from::after{content:"下载" attr(show-text);color:var(--w-brand);cursor:pointer;float:right}.woo-modal-main .wbpro-layer .head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after{content:''}.Main_full_1dfQX.isFirst .head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after,.main-full.isFirst div.card-feed div.from::after{animation:wobble infinite 1s alternate}@keyframes wobble{from{-webkit-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}15%{-webkit-transform:translate3d(-25%,0,0) rotate3d(0,0,1,-5deg);transform:translate3d(-25%,0,0) rotate3d(0,0,1,-5deg)}30%{-webkit-transform:translate3d(20%,0,0) rotate3d(0,0,1,3deg);transform:translate3d(20%,0,0) rotate3d(0,0,1,3deg)}45%{-webkit-transform:translate3d(-15%,0,0) rotate3d(0,0,1,-3deg);transform:translate3d(-15%,0,0) rotate3d(0,0,1,-3deg)}60%{-webkit-transform:translate3d(10%,0,0) rotate3d(0,0,1,2deg);transform:translate3d(10%,0,0) rotate3d(0,0,1,2deg)}75%{-webkit-transform:translate3d(-5%,0,0) rotate3d(0,0,1,-1deg);transform:translate3d(-5%,0,0) rotate3d(0,0,1,-1deg)}to{-webkit-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}}.Frame_content_3XrxZ #wah0713,.m-main #wah0713{font-size:12px;font-weight:700}.Frame_content_3XrxZ #wah0713.out,.m-main #wah0713.out{opacity:0}.Frame_content_3XrxZ #wah0713.out:hover,.m-main #wah0713.out:hover{opacity:1}.Frame_content_3XrxZ #wah0713 .container,.m-main #wah0713 .container{background-color:var(--frame-background);position:fixed;left:0;z-index:1}.Frame_content_3XrxZ #wah0713:hover .editName,.Frame_content_3XrxZ #wah0713:hover .input-box,.m-main #wah0713:hover .editName,.m-main #wah0713:hover .input-box{display:block}.Frame_content_3XrxZ #wah0713 input,.m-main #wah0713 input{width:3em;color:var(--w-brand);border-width:1px;outline:0;background-color:transparent}.Frame_content_3XrxZ #wah0713 .input-box,.m-main #wah0713 .input-box{display:none}.Frame_content_3XrxZ #wah0713 .showMessage>p,.m-main #wah0713 .showMessage>p{line-height:16px;margin:4px}.Frame_content_3XrxZ #wah0713 .showMessage>p span,.m-main #wah0713 .showMessage>p span{color:var(--w-main);vertical-align:top}.Frame_content_3XrxZ #wah0713 .showMessage>p span.red,.m-main #wah0713 .showMessage>p span.red{color:var(--w-brand)}.Frame_content_3XrxZ #wah0713 .showMessage>p span.red.downloadBtn,.m-main #wah0713 .showMessage>p span.red.downloadBtn{cursor:pointer}.Frame_content_3XrxZ #wah0713 .showMessage>p a,.m-main #wah0713 .showMessage>p a{color:transparent;overflow:hidden;text-overflow:ellipsis;max-width:300px;display:inline-block;white-space:nowrap;-webkit-background-clip:text}.Frame_content_3XrxZ #wah0713 .showMessage>p a:hover,.m-main #wah0713 .showMessage>p a:hover{text-decoration:none}.Frame_content_3XrxZ #wah0713 .editName,.m-main #wah0713 .editName{display:none;border:1px solid #ccc;padding:2px;border-radius:6px;user-select:none}.Frame_content_3XrxZ #wah0713 .editName ul,.m-main #wah0713 .editName ul{list-style:none;display:flex;height:20px;margin:0;padding:0 10px 0 0;background-color:#fafafa}.Frame_content_3XrxZ #wah0713 .editName li,.m-main #wah0713 .editName li{height:20px;line-height:20px;background:var(--red);color:#fff;padding-inline:3px;margin-left:2px;font-size:12px;cursor:grab;border-radius:5px}.Frame_content_3XrxZ #wah0713 .unactive li,.m-main #wah0713 .unactive li{background:var(--w-brand)}.Frame_content_3XrxZ #wah0713 .outline,.m-main #wah0713 .outline{outline:2px solid #119da6}
 `)
 
     // // debugJS
