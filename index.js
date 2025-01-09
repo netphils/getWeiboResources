@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         微博一键下载(9宫格&&视频)
 // @namespace    https://github.com/wah0713/getWeiboResources
-// @version      2.3.10
+// @version      2.3.11
 // @description  一个兴趣使然的脚本，微博一键下载脚本。傻瓜式🐵(简单🍎、易用🧩、可靠💪)
 // @supportURL   https://github.com/wah0713/getWeiboResources/issues
 // @updateURL    https://greasyfork.org/scripts/454816/code/download.user.js
@@ -127,10 +127,6 @@
         isImageHD: {
             name: '是否下载最高清的【图片】(会明显增加下载耗时)',
             value: GM_getValue('isImageHD', false)
-        },
-        isVideoCover: {
-            name: '是否下载【视频封面】',
-            value: GM_getValue('isVideoCover', true)
         },
         isPack: {
             name: '是否打包下载(压缩包)',
@@ -328,15 +324,11 @@
                 if (mblog_vip_type === 1 || !config.isImageHD.value || getSuffixName(mw2000Url) === 'gif') {
                     url = mw2000Url
                 }
+                urlData[`${afterName}.${getSuffixName(mw2000Url)}`] = url
                 // live视频
                 if (pic_infos[ele].type === 'livephoto') {
                     const url = get(pic_infos[ele], 'video', '')
                     urlData[`${afterName}.${getSuffixName(url)}`] = url
-                    if (config.isVideoCover.value) {
-                        urlData[`${afterName}.${getSuffixName(mw2000Url)}`] = url
-                    }
-                } else {
-                    urlData[`${afterName}.${getSuffixName(mw2000Url)}`] = url
                 }
             })
         }
@@ -355,22 +347,13 @@
                     if (config.isVideoHD.value && objectId) {
                         videoHDUrl = await getVideoHD(objectId)
                     }
-
-                    if (config.isVideoCover.value) {
-                        imgUrl = get(ele, 'data.pic_info.pic_big.url', '')
-                    }
                     mediaUrl = videoHDUrl || get(ele, 'data.media_info.stream_url_hd', get(ele, 'data.media_info.stream_url', ''))
                 } else {
+                    imgUrl = get(ele, 'data.mw2000.url', '')
                     // live视频
                     if (get(ele, 'data.type', '') === 'livephoto') {
                         const url = get(ele, 'data.video', '')
                         urlData[`${afterName}.${getSuffixName(url)}`] = url
-
-                        if (config.isVideoCover.value) {
-                            imgUrl = get(ele, 'data.mw2000.url', '')
-                        }
-                    } else {
-                        imgUrl = get(ele, 'data.mw2000.url', '')
                     }
                 }
 
