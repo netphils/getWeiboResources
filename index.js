@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         微博一键下载(9宫格&&视频)
 // @namespace    https://github.com/wah0713/getWeiboResources
-// @version      2.3.11
+// @version      2.3.12
 // @description  一个兴趣使然的脚本，微博一键下载脚本。傻瓜式🐵(简单🍎、易用🧩、可靠💪)
 // @supportURL   https://github.com/wah0713/getWeiboResources/issues
 // @updateURL    https://greasyfork.org/scripts/454816/code/download.user.js
@@ -553,8 +553,11 @@
     function getInfoById(id) {
         return new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
-                url: `https://weibo.com/ajax/statuses/show?id=${id}`,
+                url: `https://weibo.com/ajax/statuses/show?id=${id}&locale=zh-CN&isGetLongText=true`,
                 responseType: 'json',
+                headers:{
+                    referer: 'https://weibo.com/',
+                },
                 onload: (res) => {
                     isDebug && console.log(`getInfoById-onload`, res)
                     const response = res.response
