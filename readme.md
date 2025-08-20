@@ -36,7 +36,7 @@
 </details>
 <p>
 15、支持下载m3u8类型视频（如<img loading="lazy" width="14" style="vertical-align: text-top; "
-src="https://api.iowen.cn/favicon/www.iqiyi.com.png">爱奇艺视频）（1.9.0）
+src="https://www.iqiyi.com/favicon.ico">爱奇艺视频）（1.9.0）
 </p>
 <details>
 <summary>1.9.0(点击查看)</summary>
