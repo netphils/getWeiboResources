@@ -2,6 +2,7 @@ body {
   --red: #ff3852;
 }
 div.card-feed div.from::after,
+._info_1tpft_10:not(._retweetHeadInfo_m3n8j_103)::after,
 .head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after {
   content: "下载" attr(show-text);
   color: var(--w-brand);
@@ -9,6 +10,7 @@ div.card-feed div.from::after,
   position: absolute;
   right: 0;
 }
+._info_1tpft_10,
 div.card-feed div.from,
 .head-info_info_2AspQ {
   position: relative;
@@ -16,6 +18,7 @@ div.card-feed div.from,
 .woo-modal-main .wbpro-layer .head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after {
   content: '';
 }
+._full_1l406_7.isFirst ._info_1tpft_10:not(._retweetHeadInfo_m3n8j_103)::after,
 .Main_full_1dfQX.isFirst .head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after,
 .main-full.isFirst div.card-feed div.from::after {
   animation: wobble infinite 1s alternate;
@@ -51,20 +54,24 @@ div.card-feed div.from,
   }
 }
 .m-main #wah0713,
-.Frame_content_3XrxZ #wah0713 {
+.Frame_content_3XrxZ #wah0713,
+._content_1ubn9_18 #wah0713 {
   font-size: 12px;
   font-weight: bold;
 }
 .m-main #wah0713.out,
-.Frame_content_3XrxZ #wah0713.out {
+.Frame_content_3XrxZ #wah0713.out,
+._content_1ubn9_18 #wah0713.out {
   opacity: 0;
 }
 .m-main #wah0713.out:hover,
-.Frame_content_3XrxZ #wah0713.out:hover {
+.Frame_content_3XrxZ #wah0713.out:hover,
+._content_1ubn9_18 #wah0713.out:hover {
   opacity: 1;
 }
 .m-main #wah0713 .container,
-.Frame_content_3XrxZ #wah0713 .container {
+.Frame_content_3XrxZ #wah0713 .container,
+._content_1ubn9_18 #wah0713 .container {
   background-color: var(--frame-background);
   position: fixed;
   left: 0;
@@ -72,12 +79,15 @@ div.card-feed div.from,
 }
 .m-main #wah0713:hover .input-box,
 .Frame_content_3XrxZ #wah0713:hover .input-box,
+._content_1ubn9_18 #wah0713:hover .input-box,
 .m-main #wah0713:hover .editName,
-.Frame_content_3XrxZ #wah0713:hover .editName {
+.Frame_content_3XrxZ #wah0713:hover .editName,
+._content_1ubn9_18 #wah0713:hover .editName {
   display: block;
 }
 .m-main #wah0713 input,
-.Frame_content_3XrxZ #wah0713 input {
+.Frame_content_3XrxZ #wah0713 input,
+._content_1ubn9_18 #wah0713 input {
   width: 3em;
   color: var(--w-brand);
   border-width: 1px;
@@ -85,29 +95,35 @@ div.card-feed div.from,
   background-color: transparent;
 }
 .m-main #wah0713 .input-box,
-.Frame_content_3XrxZ #wah0713 .input-box {
+.Frame_content_3XrxZ #wah0713 .input-box,
+._content_1ubn9_18 #wah0713 .input-box {
   display: none;
 }
 .m-main #wah0713 .showMessage > p,
-.Frame_content_3XrxZ #wah0713 .showMessage > p {
+.Frame_content_3XrxZ #wah0713 .showMessage > p,
+._content_1ubn9_18 #wah0713 .showMessage > p {
   line-height: 16px;
   margin: 4px;
 }
 .m-main #wah0713 .showMessage > p span,
-.Frame_content_3XrxZ #wah0713 .showMessage > p span {
+.Frame_content_3XrxZ #wah0713 .showMessage > p span,
+._content_1ubn9_18 #wah0713 .showMessage > p span {
   color: var(--w-main);
   vertical-align: top;
 }
 .m-main #wah0713 .showMessage > p span.red,
-.Frame_content_3XrxZ #wah0713 .showMessage > p span.red {
+.Frame_content_3XrxZ #wah0713 .showMessage > p span.red,
+._content_1ubn9_18 #wah0713 .showMessage > p span.red {
   color: var(--w-brand);
 }
 .m-main #wah0713 .showMessage > p span.red.downloadBtn,
-.Frame_content_3XrxZ #wah0713 .showMessage > p span.red.downloadBtn {
+.Frame_content_3XrxZ #wah0713 .showMessage > p span.red.downloadBtn,
+._content_1ubn9_18 #wah0713 .showMessage > p span.red.downloadBtn {
   cursor: pointer;
 }
 .m-main #wah0713 .showMessage > p a,
-.Frame_content_3XrxZ #wah0713 .showMessage > p a {
+.Frame_content_3XrxZ #wah0713 .showMessage > p a,
+._content_1ubn9_18 #wah0713 .showMessage > p a {
   color: transparent;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -117,11 +133,13 @@ div.card-feed div.from,
   -webkit-background-clip: text;
 }
 .m-main #wah0713 .showMessage > p a:hover,
-.Frame_content_3XrxZ #wah0713 .showMessage > p a:hover {
+.Frame_content_3XrxZ #wah0713 .showMessage > p a:hover,
+._content_1ubn9_18 #wah0713 .showMessage > p a:hover {
   text-decoration: none;
 }
 .m-main #wah0713 .editName,
-.Frame_content_3XrxZ #wah0713 .editName {
+.Frame_content_3XrxZ #wah0713 .editName,
+._content_1ubn9_18 #wah0713 .editName {
   display: none;
   border: 1px solid #ccc;
   padding: 2px;
@@ -129,7 +147,8 @@ div.card-feed div.from,
   user-select: none;
 }
 .m-main #wah0713 .editName ul,
-.Frame_content_3XrxZ #wah0713 .editName ul {
+.Frame_content_3XrxZ #wah0713 .editName ul,
+._content_1ubn9_18 #wah0713 .editName ul {
   list-style: none;
   display: flex;
   height: 20px;
@@ -138,7 +157,8 @@ div.card-feed div.from,
   background-color: #fafafa;
 }
 .m-main #wah0713 .editName li,
-.Frame_content_3XrxZ #wah0713 .editName li {
+.Frame_content_3XrxZ #wah0713 .editName li,
+._content_1ubn9_18 #wah0713 .editName li {
   height: 20px;
   line-height: 20px;
   background: var(--red);
@@ -150,10 +170,12 @@ div.card-feed div.from,
   border-radius: 5px;
 }
 .m-main #wah0713 .unactive li,
-.Frame_content_3XrxZ #wah0713 .unactive li {
+.Frame_content_3XrxZ #wah0713 .unactive li,
+._content_1ubn9_18 #wah0713 .unactive li {
   background: var(--w-brand);
 }
 .m-main #wah0713 .outline,
-.Frame_content_3XrxZ #wah0713 .outline {
+.Frame_content_3XrxZ #wah0713 .outline,
+._content_1ubn9_18 #wah0713 .outline {
   outline: 2px solid #119da6;
 }

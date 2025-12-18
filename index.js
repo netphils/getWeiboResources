@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         微博一键下载(9宫格&&视频)
 // @namespace    https://github.com/wah0713/getWeiboResources
-// @version      2.3.13
+// @version      2.3.14
 // @description  一个兴趣使然的脚本，微博一键下载脚本。傻瓜式🐵(简单🍎、易用🧩、可靠💪)
 // @supportURL   https://github.com/wah0713/getWeiboResources/issues
 // @updateURL    https://greasyfork.org/scripts/454816/code/download.user.js
@@ -40,23 +40,31 @@
 (async function () {
     const $frameContent = $('.Frame_content_3XrxZ')
     const $mMain = $('.m-main')
+    const $newMain = $('._content_1ubn9_18')
     let $main = ''
     let $cardList = ''
     let cardHeadStr = ''
     let cardHeadAStr = ''
-    if ($frameContent.length === 0 && $mMain.length) {
+    if ($mMain.length) {
         // 搜索页面
         $main = $mMain
         $cardList = $('.main-full')
         cardHeadStr = 'div.card-feed  div.from'
         cardHeadAStr = 'a[suda-data]'
-    } else if ($frameContent.length && $mMain.length === 0) {
+    } else if ($frameContent.length) {
         // 默认页面
         $main = $frameContent
         // .Frame_wrap_16as0 微博个人主页里面的相册
         $cardList = $('.Main_full_1dfQX,.Frame_wrap_16as0')
         cardHeadStr = '.head-info_info_2AspQ'
         cardHeadAStr = '.head-info_time_6sFQg'
+    } else if ($newMain.length) {
+        // 默认页面
+        $main = $newMain
+        // ._wrap_100l0_2  微博个人主页里面的相册
+        $cardList = $('._full_1l406_7,._wrap_100l0_2')
+        cardHeadStr = '._info_1tpft_10'
+        cardHeadAStr = '._time_1tpft_33'
     } else {
         return false
     }
@@ -1057,6 +1065,7 @@
     }
     // 预览图片时，点击图片关闭预览功能
     $('.imgInstance.Viewer_imgElm_2JHWe').on('click', clickEscKey)
+    $('.imgInstance._imgElm_x308k_114').on('click', clickEscKey)
 
     $main.prepend(`
     <div id="wah0713">
@@ -1142,7 +1151,7 @@
         $cardList.addClass('isFirst')
     }
 
-    $cardList.on('click', `${cardHeadStr}:not(.Feed_retweetHeadInfo_Tl4Ld)`, async function (event) {
+    $cardList.on('click', `${cardHeadStr}:not(.Feed_retweetHeadInfo_Tl4Ld,._retweetHeadInfo_m3n8j_103)`, async function (event) {
         if (event.target.className !== event.currentTarget.className || ![...Object.values(message).filter(item => item !== message.getReady), undefined].includes(
             $(this).attr('show-text')
         )) return false

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         微博一键下载(9宫格&&视频)
 // @namespace    https://github.com/wah0713/getWeiboResources
-// @version      2.3.13
+// @version      2.3.14
 // @description  一个兴趣使然的脚本，微博一键下载脚本。傻瓜式🐵(简单🍎、易用🧩、可靠💪)
 // @supportURL   https://github.com/wah0713/getWeiboResources/issues
 // @updateURL    https://greasyfork.org/scripts/454816/code/download.user.js
@@ -40,23 +40,31 @@
 (async function () {
     const $frameContent = $('.Frame_content_3XrxZ')
     const $mMain = $('.m-main')
+    const $newMain = $('._content_1ubn9_18')
     let $main = ''
     let $cardList = ''
     let cardHeadStr = ''
     let cardHeadAStr = ''
-    if ($frameContent.length === 0 && $mMain.length) {
+    if ($mMain.length) {
         // 搜索页面
         $main = $mMain
         $cardList = $('.main-full')
         cardHeadStr = 'div.card-feed  div.from'
         cardHeadAStr = 'a[suda-data]'
-    } else if ($frameContent.length && $mMain.length === 0) {
+    } else if ($frameContent.length) {
         // 默认页面
         $main = $frameContent
         // .Frame_wrap_16as0 微博个人主页里面的相册
         $cardList = $('.Main_full_1dfQX,.Frame_wrap_16as0')
         cardHeadStr = '.head-info_info_2AspQ'
         cardHeadAStr = '.head-info_time_6sFQg'
+    } else if ($newMain.length) {
+        // 默认页面
+        $main = $newMain
+        // ._wrap_100l0_2  微博个人主页里面的相册
+        $cardList = $('._full_1l406_7,._wrap_100l0_2')
+        cardHeadStr = '._info_1tpft_10'
+        cardHeadAStr = '._time_1tpft_33'
     } else {
         return false
     }
@@ -1057,6 +1065,7 @@
     }
     // 预览图片时，点击图片关闭预览功能
     $('.imgInstance.Viewer_imgElm_2JHWe').on('click', clickEscKey)
+    $('.imgInstance._imgElm_x308k_114').on('click', clickEscKey)
 
     $main.prepend(`
     <div id="wah0713">
@@ -1142,7 +1151,7 @@
         $cardList.addClass('isFirst')
     }
 
-    $cardList.on('click', `${cardHeadStr}:not(.Feed_retweetHeadInfo_Tl4Ld)`, async function (event) {
+    $cardList.on('click', `${cardHeadStr}:not(.Feed_retweetHeadInfo_Tl4Ld,._retweetHeadInfo_m3n8j_103)`, async function (event) {
         if (event.target.className !== event.currentTarget.className || ![...Object.values(message).filter(item => item !== message.getReady), undefined].includes(
             $(this).attr('show-text')
         )) return false
@@ -1270,7 +1279,188 @@
     }
     updateMenuCommand()
 
-    GM_addStyle(`body{--red:#ff3852}.head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after,div.card-feed div.from::after{content:"下载" attr(show-text);color:var(--w-brand);cursor:pointer;position:absolute;right:0}.head-info_info_2AspQ,div.card-feed div.from{position:relative}.woo-modal-main .wbpro-layer .head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after{content:''}.Main_full_1dfQX.isFirst .head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after,.main-full.isFirst div.card-feed div.from::after{animation:wobble infinite 1s alternate}@keyframes wobble{from{-webkit-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}15%{-webkit-transform:translate3d(-25%,0,0) rotate3d(0,0,1,-5deg);transform:translate3d(-25%,0,0) rotate3d(0,0,1,-5deg)}30%{-webkit-transform:translate3d(20%,0,0) rotate3d(0,0,1,3deg);transform:translate3d(20%,0,0) rotate3d(0,0,1,3deg)}45%{-webkit-transform:translate3d(-15%,0,0) rotate3d(0,0,1,-3deg);transform:translate3d(-15%,0,0) rotate3d(0,0,1,-3deg)}60%{-webkit-transform:translate3d(10%,0,0) rotate3d(0,0,1,2deg);transform:translate3d(10%,0,0) rotate3d(0,0,1,2deg)}75%{-webkit-transform:translate3d(-5%,0,0) rotate3d(0,0,1,-1deg);transform:translate3d(-5%,0,0) rotate3d(0,0,1,-1deg)}to{-webkit-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}}.Frame_content_3XrxZ #wah0713,.m-main #wah0713{font-size:12px;font-weight:700}.Frame_content_3XrxZ #wah0713.out,.m-main #wah0713.out{opacity:0}.Frame_content_3XrxZ #wah0713.out:hover,.m-main #wah0713.out:hover{opacity:1}.Frame_content_3XrxZ #wah0713 .container,.m-main #wah0713 .container{background-color:var(--frame-background);position:fixed;left:0;z-index:1}.Frame_content_3XrxZ #wah0713:hover .editName,.Frame_content_3XrxZ #wah0713:hover .input-box,.m-main #wah0713:hover .editName,.m-main #wah0713:hover .input-box{display:block}.Frame_content_3XrxZ #wah0713 input,.m-main #wah0713 input{width:3em;color:var(--w-brand);border-width:1px;outline:0;background-color:transparent}.Frame_content_3XrxZ #wah0713 .input-box,.m-main #wah0713 .input-box{display:none}.Frame_content_3XrxZ #wah0713 .showMessage>p,.m-main #wah0713 .showMessage>p{line-height:16px;margin:4px}.Frame_content_3XrxZ #wah0713 .showMessage>p span,.m-main #wah0713 .showMessage>p span{color:var(--w-main);vertical-align:top}.Frame_content_3XrxZ #wah0713 .showMessage>p span.red,.m-main #wah0713 .showMessage>p span.red{color:var(--w-brand)}.Frame_content_3XrxZ #wah0713 .showMessage>p span.red.downloadBtn,.m-main #wah0713 .showMessage>p span.red.downloadBtn{cursor:pointer}.Frame_content_3XrxZ #wah0713 .showMessage>p a,.m-main #wah0713 .showMessage>p a{color:transparent;overflow:hidden;text-overflow:ellipsis;max-width:300px;display:inline-block;white-space:nowrap;-webkit-background-clip:text}.Frame_content_3XrxZ #wah0713 .showMessage>p a:hover,.m-main #wah0713 .showMessage>p a:hover{text-decoration:none}.Frame_content_3XrxZ #wah0713 .editName,.m-main #wah0713 .editName{display:none;border:1px solid #ccc;padding:2px;border-radius:6px;user-select:none}.Frame_content_3XrxZ #wah0713 .editName ul,.m-main #wah0713 .editName ul{list-style:none;display:flex;height:20px;margin:0;padding:0 10px 0 0;background-color:#fafafa}.Frame_content_3XrxZ #wah0713 .editName li,.m-main #wah0713 .editName li{height:20px;line-height:20px;background:var(--red);color:#fff;padding-inline:3px;margin-left:2px;font-size:12px;cursor:grab;border-radius:5px}.Frame_content_3XrxZ #wah0713 .unactive li,.m-main #wah0713 .unactive li{background:var(--w-brand)}.Frame_content_3XrxZ #wah0713 .outline,.m-main #wah0713 .outline{outline:2px solid #119da6}
+    GM_addStyle(`
+body {
+  --red: #ff3852;
+}
+div.card-feed div.from::after,
+._info_1tpft_10:not(._retweetHeadInfo_m3n8j_103)::after,
+.head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after {
+  content: "下载" attr(show-text);
+  color: var(--w-brand);
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+}
+._info_1tpft_10,
+div.card-feed div.from,
+.head-info_info_2AspQ {
+  position: relative;
+}
+.woo-modal-main .wbpro-layer .head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after {
+  content: '';
+}
+._full_1l406_7.isFirst ._info_1tpft_10:not(._retweetHeadInfo_m3n8j_103)::after,
+.Main_full_1dfQX.isFirst .head-info_info_2AspQ:not(.Feed_retweetHeadInfo_Tl4Ld)::after,
+.main-full.isFirst div.card-feed div.from::after {
+  animation: wobble infinite 1s alternate;
+}
+@keyframes wobble {
+  from {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+  15% {
+    -webkit-transform: translate3d(-25%, 0, 0) rotate3d(0, 0, 1, -5deg);
+    transform: translate3d(-25%, 0, 0) rotate3d(0, 0, 1, -5deg);
+  }
+  30% {
+    -webkit-transform: translate3d(20%, 0, 0) rotate3d(0, 0, 1, 3deg);
+    transform: translate3d(20%, 0, 0) rotate3d(0, 0, 1, 3deg);
+  }
+  45% {
+    -webkit-transform: translate3d(-15%, 0, 0) rotate3d(0, 0, 1, -3deg);
+    transform: translate3d(-15%, 0, 0) rotate3d(0, 0, 1, -3deg);
+  }
+  60% {
+    -webkit-transform: translate3d(10%, 0, 0) rotate3d(0, 0, 1, 2deg);
+    transform: translate3d(10%, 0, 0) rotate3d(0, 0, 1, 2deg);
+  }
+  75% {
+    -webkit-transform: translate3d(-5%, 0, 0) rotate3d(0, 0, 1, -1deg);
+    transform: translate3d(-5%, 0, 0) rotate3d(0, 0, 1, -1deg);
+  }
+  to {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+.m-main #wah0713,
+.Frame_content_3XrxZ #wah0713,
+._content_1ubn9_18 #wah0713 {
+  font-size: 12px;
+  font-weight: bold;
+}
+.m-main #wah0713.out,
+.Frame_content_3XrxZ #wah0713.out,
+._content_1ubn9_18 #wah0713.out {
+  opacity: 0;
+}
+.m-main #wah0713.out:hover,
+.Frame_content_3XrxZ #wah0713.out:hover,
+._content_1ubn9_18 #wah0713.out:hover {
+  opacity: 1;
+}
+.m-main #wah0713 .container,
+.Frame_content_3XrxZ #wah0713 .container,
+._content_1ubn9_18 #wah0713 .container {
+  background-color: var(--frame-background);
+  position: fixed;
+  left: 0;
+  z-index: 1;
+}
+.m-main #wah0713:hover .input-box,
+.Frame_content_3XrxZ #wah0713:hover .input-box,
+._content_1ubn9_18 #wah0713:hover .input-box,
+.m-main #wah0713:hover .editName,
+.Frame_content_3XrxZ #wah0713:hover .editName,
+._content_1ubn9_18 #wah0713:hover .editName {
+  display: block;
+}
+.m-main #wah0713 input,
+.Frame_content_3XrxZ #wah0713 input,
+._content_1ubn9_18 #wah0713 input {
+  width: 3em;
+  color: var(--w-brand);
+  border-width: 1px;
+  outline: 0;
+  background-color: transparent;
+}
+.m-main #wah0713 .input-box,
+.Frame_content_3XrxZ #wah0713 .input-box,
+._content_1ubn9_18 #wah0713 .input-box {
+  display: none;
+}
+.m-main #wah0713 .showMessage > p,
+.Frame_content_3XrxZ #wah0713 .showMessage > p,
+._content_1ubn9_18 #wah0713 .showMessage > p {
+  line-height: 16px;
+  margin: 4px;
+}
+.m-main #wah0713 .showMessage > p span,
+.Frame_content_3XrxZ #wah0713 .showMessage > p span,
+._content_1ubn9_18 #wah0713 .showMessage > p span {
+  color: var(--w-main);
+  vertical-align: top;
+}
+.m-main #wah0713 .showMessage > p span.red,
+.Frame_content_3XrxZ #wah0713 .showMessage > p span.red,
+._content_1ubn9_18 #wah0713 .showMessage > p span.red {
+  color: var(--w-brand);
+}
+.m-main #wah0713 .showMessage > p span.red.downloadBtn,
+.Frame_content_3XrxZ #wah0713 .showMessage > p span.red.downloadBtn,
+._content_1ubn9_18 #wah0713 .showMessage > p span.red.downloadBtn {
+  cursor: pointer;
+}
+.m-main #wah0713 .showMessage > p a,
+.Frame_content_3XrxZ #wah0713 .showMessage > p a,
+._content_1ubn9_18 #wah0713 .showMessage > p a {
+  color: transparent;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+  display: inline-block;
+  white-space: nowrap;
+  -webkit-background-clip: text;
+}
+.m-main #wah0713 .showMessage > p a:hover,
+.Frame_content_3XrxZ #wah0713 .showMessage > p a:hover,
+._content_1ubn9_18 #wah0713 .showMessage > p a:hover {
+  text-decoration: none;
+}
+.m-main #wah0713 .editName,
+.Frame_content_3XrxZ #wah0713 .editName,
+._content_1ubn9_18 #wah0713 .editName {
+  display: none;
+  border: 1px solid #ccc;
+  padding: 2px;
+  border-radius: 6px;
+  user-select: none;
+}
+.m-main #wah0713 .editName ul,
+.Frame_content_3XrxZ #wah0713 .editName ul,
+._content_1ubn9_18 #wah0713 .editName ul {
+  list-style: none;
+  display: flex;
+  height: 20px;
+  margin: 0;
+  padding: 0 10px 0 0;
+  background-color: #fafafa;
+}
+.m-main #wah0713 .editName li,
+.Frame_content_3XrxZ #wah0713 .editName li,
+._content_1ubn9_18 #wah0713 .editName li {
+  height: 20px;
+  line-height: 20px;
+  background: var(--red);
+  color: #fff;
+  padding-inline: 3px;
+  margin-left: 2px;
+  font-size: 12px;
+  cursor: grab;
+  border-radius: 5px;
+}
+.m-main #wah0713 .unactive li,
+.Frame_content_3XrxZ #wah0713 .unactive li,
+._content_1ubn9_18 #wah0713 .unactive li {
+  background: var(--w-brand);
+}
+.m-main #wah0713 .outline,
+.Frame_content_3XrxZ #wah0713 .outline,
+._content_1ubn9_18 #wah0713 .outline {
+  outline: 2px solid #119da6;
+}
 `)
 
     // // debugJS
