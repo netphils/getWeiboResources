@@ -1270,7 +1270,7 @@
 css
 `)
 
-    // debugJS
-    isDebug = true
-    unsafeWindow.$ = $
+    // // debugJS
+    // isDebug = true
+    // unsafeWindow.$ = $
 })()
