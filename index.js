@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         微博一键下载(9宫格&&视频)
 // @namespace    https://github.com/wah0713/getWeiboResources
-// @version      2.3.14
+// @version      2.4
 // @description  一个兴趣使然的脚本，微博一键下载脚本。傻瓜式🐵(简单🍎、易用🧩、可靠💪)
 // @supportURL   https://github.com/wah0713/getWeiboResources/issues
 // @updateURL    https://greasyfork.org/scripts/454816/code/download.user.js
@@ -80,8 +80,6 @@
         init: '', // 初始化
         getReady: '准备中',
         isEmptyError: '失败，未找到资源',
-        // todo 说不定以后想做直播资源下载
-        isLiveError: '失败，直播资源解析失败',
         isUnkownError: '失败，未知错误(点击重试)',
         finish: '完成'
     }
@@ -290,7 +288,6 @@
     async function getFileUrlByInfo(dom) {
         const id = $(dom).children('a').attr('href').match(/(?<=\d+\/)(\w+)/) && RegExp.$1
         const {
-            isLive,
             topMedia,
             pic_infos,
             mix_media_info,
@@ -387,7 +384,6 @@
         }
 
         return {
-            isLive,
             urlData,
             time,
             geo,
@@ -583,13 +579,10 @@
                         // 视频
                         if (res.response.page_info) {
                             const {
-                                isLive,
                                 url
                             } = handleMedia(res)
 
                             response.topMedia = url
-                            // 直播资源
-                            response.isLive = isLive
                         }
                     } catch (error) { }
                     resolve(response)
@@ -639,9 +632,11 @@
     // 视频资源解析
     function handleMedia(res) {
         const objectType = get(res.response, 'page_info.object_type', '')
-        const url = get(res.response, 'page_info.media_info.playback_list[0].play_info.url', get(res.response, 'page_info.media_info.stream_url', ''))
+        let url = get(res.response, 'page_info.media_info.playback_list[0].play_info.url', get(res.response, 'page_info.media_info.stream_url', ''))
+        if (objectType === 'live') {
+            url = get(res.response, 'page_info.media_info.replay_hd', '')
+        }
         return {
-            isLive: objectType === 'live',
             url
         }
     }
@@ -995,11 +990,6 @@
         filterData()
         updateCacheData()
 
-        if (data[href].isLive) {
-            data[href].message = message.isLiveError
-            return false
-        }
-
         const urlArr = Object.keys(urlData);
         if (urlArr.length <= 0) {
             // 没有资源
@@ -1171,7 +1161,6 @@
             text: '',
             title: '',
             message: '',
-            isLive: false, // 直播资源
             isLongText: false,
             total: 0,
             completedQuantity: 0,
@@ -1181,7 +1170,6 @@
 
         const {
             urlData,
-            isLive,
             time,
             userName,
             userID,
@@ -1205,7 +1193,6 @@
         data[href].text = text
         data[href].isLongText = isLongText
         data[href].message = message.getReady
-        data[href].isLive = isLive
 
         main({
             href,
@@ -1283,7 +1270,7 @@
 css
 `)
 
-    // // debugJS
-    // isDebug = true
-    // unsafeWindow.$ = $
+    // debugJS
+    isDebug = true
+    unsafeWindow.$ = $
 })()
