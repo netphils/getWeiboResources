@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         微博一键下载(9宫格&&视频)
 // @namespace    https://github.com/wah0713/getWeiboResources
-// @version      2.4.2
+// @version      2.4.3
 // @description  一个兴趣使然的脚本，微博一键下载脚本。傻瓜式🐵(简单🍎、易用🧩、可靠💪)
 // @supportURL   https://github.com/wah0713/getWeiboResources/issues
 // @updateURL    https://greasyfork.org/scripts/454816/code/download.user.js
@@ -38,36 +38,70 @@
 // ==/UserScript==
 
 (async function () {
-    const $frameContent = $('.Frame_content_3XrxZ')
-    const $mMain = $('.m-main')
-    const $newMain = $('._content_1ubn9_18')
-    let $main = ''
-    let $cardList = ''
-    let cardHeadStr = ''
-    let cardHeadAStr = ''
-    if ($mMain.length) {
-        // 搜索页面
-        $main = $mMain
-        $cardList = $('.main-full')
-        cardHeadStr = 'div.card-feed  div.from'
-        cardHeadAStr = 'a[suda-data]'
-    } else if ($frameContent.length) {
-        // 默认页面
-        $main = $frameContent
-        // .Frame_wrap_16as0 微博个人主页里面的相册
-        $cardList = $('.Main_full_1dfQX,.Frame_wrap_16as0')
-        cardHeadStr = '.head-info_info_2AspQ'
-        cardHeadAStr = '.head-info_time_6sFQg'
-    } else if ($newMain.length) {
-        // 默认页面
-        $main = $newMain
-        // ._wrap_100l0_2  微博个人主页里面的相册
-        $cardList = $('._full_1l406_7,._wrap_100l0_2')
-        cardHeadStr = '._info_1tpft_10'
-        cardHeadAStr = '._time_1tpft_33'
-    } else {
-        return false
+    // 定义初始化函数
+    async function init() {
+        const $frameContent = $('.Frame_content_3XrxZ');
+        const $mMain = $('.m-main');
+        const $newMain = $('._content_1ubn9_18');
+
+        let $main = '';
+        let $cardList = '';
+        let cardHeadStr = '';
+        let cardHeadAStr = '';
+
+        if ($mMain.length) {
+            // 搜索页面
+            $main = $mMain;
+            $cardList = $('.main-full')
+            cardHeadStr = 'div.card-feed  div.from'
+            cardHeadAStr = 'a[suda-data]'
+        } else if ($frameContent.length) {
+            // 默认页面
+            $main = $frameContent
+            // .Frame_wrap_16as0 微博个人主页里面的相册
+            $cardList = $('.Main_full_1dfQX,.Frame_wrap_16as0')
+            cardHeadStr = '.head-info_info_2AspQ'
+            cardHeadAStr = '.head-info_time_6sFQg'
+        } else if ($newMain.length) {
+            // 默认页面
+            $main = $newMain
+            // ._wrap_100l0_2  微博个人主页里面的相册
+            $cardList = $('._full_1l406_7,._wrap_100l0_2')
+            cardHeadStr = '._info_1tpft_10'
+            cardHeadAStr = '._time_1tpft_33'
+        }
+
+        // 如果没找到对应的容器，返回 null
+        if (!$main || !$main.length) {
+            return null;
+        }
+
+        return { $main, $cardList, cardHeadStr, cardHeadAStr };
     }
+
+    // 循环等待页面加载
+    let setup = null;
+    let retryCount = 0;
+    const waitInterval = 0.5 * 1000; // 每次等 0.5 秒
+    const maxWaitTime = 10 * 1000; // 总共最多等 10 秒
+    const maxRetries = maxWaitTime / waitInterval; // 自动算出次数是 20 次
+
+    while (retryCount < maxRetries) {
+        setup = await init();
+        if (setup) break; // 元素加载成功，跳出循环
+
+        retryCount++;
+        console.log(`等待微博页面加载中... (${retryCount}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, waitInterval)); // 等 500 毫秒
+    }
+
+    if (!setup) {
+        console.log('脚本退出：未找到微博内容容器，可能是类名已更改。');
+        return false;
+    }
+
+    // 解构获取到的变量，继续执行
+    const { $main, $cardList, cardHeadStr, cardHeadAStr } = setup;
 
     // 第一次使用
     let isFirst = GM_getValue('isFirst', true)
