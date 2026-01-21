@@ -4,14 +4,14 @@
 <summary>📔功能介绍(点击查看)</summary>
 <pre>
 <p>
-21、支持下载直播结束的直播视频
+21、支持下载直播结束的直播视频（2.4.0）
 </p>
 <details>
 <summary>2.4.0(点击查看)</summary>
 <img loading="lazy" src="https://s41.ax1x.com/2025/12/29/pZtKIeJ.png">
 </details>
 <p>
-20、是否打包下载(压缩包)
+20、是否打包下载(压缩包)（2.3.0）
 </p>
 <details>
 <summary>2.3.0(点击查看)</summary>
@@ -79,7 +79,7 @@ src="https://www.iqiyi.com/favicon.ico">爱奇艺视频）（1.9.0）
 <img loading="lazy" src="https://s11.ax1x.com/2023/06/11/pCVg5xH.png">
 </details>
 <p>
-7、兼容<img loading="lazy" width="14" style="vertical-align: text-top; "src="https://www.firefox.com.cn/media/img/favicons/firefox/browser/apple-touch-icon.79c2abeb4e35.png">火狐浏览器（1.4.0）
+7、兼容<img loading="lazy" width="14" style="vertical-align: text-top; "src="https://www.firefox.com/media/img/favicons/firefox/browser/favicon-196x196.59e3822720be.png">火狐浏览器（1.4.0）
 </p>
 1.4.0(当时偷个懒，没有留图片)
 <p>
