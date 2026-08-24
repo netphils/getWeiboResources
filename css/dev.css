@@ -179,3 +179,35 @@ div.card-feed div.from,
 ._content_1ubn9_18 #wah0713 .outline {
   outline: 2px solid #119da6;
 }
+
+.m-main #wah0713 .auto-download-box,
+.Frame_content_3XrxZ #wah0713 .auto-download-box,
+._content_1ubn9_18 #wah0713 .auto-download-box {
+  display: none;
+}
+
+.m-main #wah0713:hover .auto-download-box,
+.Frame_content_3XrxZ #wah0713:hover .auto-download-box,
+._content_1ubn9_18 #wah0713:hover .auto-download-box {
+  display: block;
+}
+
+.m-main #wah0713 .auto-download-btn,
+.Frame_content_3XrxZ #wah0713 .auto-download-btn,
+._content_1ubn9_18 #wah0713 .auto-download-btn {
+  background: var(--w-brand);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 20px;
+}
+
+.m-main #wah0713 .auto-download-btn.stop,
+.Frame_content_3XrxZ #wah0713 .auto-download-btn.stop,
+._content_1ubn9_18 #wah0713 .auto-download-btn.stop {
+  background: var(--red);
+}

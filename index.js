@@ -1014,6 +1014,121 @@
         }, object) || defaultVal;
     }
 
+    // 自动下载
+    const autoDownload = {
+        isRunning: false,
+        processedHrefs: new Set(),
+    };
+
+    async function downloadCardByElement(cardHeadElement) {
+        const href = $(cardHeadElement).find(cardHeadAStr).attr('href');
+        if (!href) return null;
+        if (data[href] && data[href].message === message.finish) return 'done';
+        if (data[href] && data[href].message === message.getReady) return 'busy';
+
+        data[href] = {
+            name: href,
+            urlData: {},
+            text: '',
+            title: '',
+            message: '',
+            isLongText: false,
+            total: 0,
+            completedQuantity: 0,
+            percentage: 0,
+            startTime: Number(new Date()),
+        };
+
+        const {
+            urlData, time, userName, userID, regionName, geo, text, isLongText, mblogid,
+        } = await getFileUrlByInfo(cardHeadElement);
+
+        data[href].title = getFileName({ time, userName, userID, regionName, geo, text, mblogid });
+        data[href].urlData = urlData;
+        data[href].text = text;
+        data[href].isLongText = isLongText;
+        data[href].message = message.getReady;
+
+        main({ href, urlData, text, isLongText });
+        return href;
+    }
+
+    async function runAutoDownload() {
+        if (!autoDownload.isRunning) return;
+
+        const cardSelector = `${cardHeadStr}:not(.Feed_retweetHeadInfo_Tl4Ld,._retweetHeadInfo_m3n8j_103)`;
+        const allCardHeads = [...document.querySelectorAll(cardSelector)];
+
+        const unprocessed = allCardHeads.filter(el => {
+            const href = $(el).find(cardHeadAStr).attr('href');
+            if (!href) return false;
+            if (autoDownload.processedHrefs.has(href)) return false;
+            if (data[href] && data[href].message === message.finish) return false;
+            return true;
+        });
+
+        if (unprocessed.length === 0) {
+            window.scrollBy(0, window.innerHeight);
+            await sleep(2000);
+
+            const newCards = [...document.querySelectorAll(cardSelector)].filter(el => {
+                const href = $(el).find(cardHeadAStr).attr('href');
+                return href && !autoDownload.processedHrefs.has(href) && !(data[href] && data[href].message === message.finish);
+            });
+
+            if (newCards.length === 0) {
+                stopAutoDownload();
+                return;
+            }
+
+            setTimeout(() => runAutoDownload(), 1000);
+            return;
+        }
+
+        const cardHead = unprocessed[0];
+        const href = $(cardHead).find(cardHeadAStr).attr('href');
+        autoDownload.processedHrefs.add(href);
+
+        cardHead.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        await sleep(800);
+
+        const result = await downloadCardByElement(cardHead);
+
+        if (result && result !== 'done' && result !== 'busy') {
+            let waitCount = 0;
+            while (autoDownload.isRunning && waitCount < 600) {
+                const msg = data[result] && data[result].message;
+                if (msg === message.finish || msg === message.isEmptyError || msg === message.isUnkownError) break;
+                await sleep(500);
+                waitCount++;
+            }
+        }
+
+        if (autoDownload.isRunning) {
+            setTimeout(() => runAutoDownload(), 500);
+        }
+    }
+
+    function startAutoDownload() {
+        if (autoDownload.isRunning) return;
+
+        if (isFirst) {
+            isFirst = false;
+            GM_setValue('isFirst', false);
+            $cardList.removeClass('isFirst');
+        }
+
+        autoDownload.isRunning = true;
+        autoDownload.processedHrefs = new Set();
+        $('#wah0713 .auto-download-btn').text('停止下载').addClass('stop');
+        runAutoDownload();
+    }
+
+    function stopAutoDownload() {
+        autoDownload.isRunning = false;
+        $('#wah0713 .auto-download-btn').text('自动下载').removeClass('stop');
+    }
+
     async function main({
         href,
         urlData,
@@ -1110,6 +1225,9 @@
             </div>
             <div class="input-box">需要显示的消息条数：<input type="number" max="${max}" min="${min}" value="${messagesNumber}"
                     step=1>
+            </div>
+            <div class="auto-download-box">
+                <button class="auto-download-btn">自动下载</button>
             </div>
         </div>
     </div>
@@ -1261,6 +1379,14 @@
         }
         messagesNumber = event.target.value
         GM_setValue('messagesNumber', messagesNumber)
+    })
+
+    $('#wah0713 .container .auto-download-btn').click(() => {
+        if (autoDownload.isRunning) {
+            stopAutoDownload();
+        } else {
+            startAutoDownload();
+        }
     })
 
     const observer = new MutationObserver(() => {
