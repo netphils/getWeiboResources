@@ -1208,6 +1208,7 @@
     $main.prepend(`
     <div id="wah0713">
         <div class="container">
+            <div class="triggerBtn" title="微博一键下载">⚙️</div>
             <div class="showMessage"></div>
             <div class="editName">
                 <span>可选下载名(【点击】或【拖拽到下方】)</span>

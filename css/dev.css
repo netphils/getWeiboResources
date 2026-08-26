@@ -180,6 +180,21 @@ div.card-feed div.from,
   outline: 2px solid #119da6;
 }
 
+.m-main #wah0713 .triggerBtn,
+.Frame_content_3XrxZ #wah0713 .triggerBtn,
+._content_1ubn9_18 #wah0713 .triggerBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 4px;
+  border-radius: 6px;
+  background-color: var(--w-brand);
+  cursor: pointer;
+  user-select: none;
+}
+
 .m-main #wah0713 .auto-download-box,
 .Frame_content_3XrxZ #wah0713 .auto-download-box,
 ._content_1ubn9_18 #wah0713 .auto-download-box {
